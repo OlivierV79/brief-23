@@ -1,1 +1,2 @@
-# brief-23
+# brief-23 - Nouveau client pour Finance Tracker
+
