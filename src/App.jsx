@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React from 'react'
 import './App.css'
+import AuthForm from './components/AuthForm'
+import { useAuth } from './contexts/AuthContext'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+    const { isAuthenticated, username, logout } = useAuth()
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    if (!isAuthenticated) {
+        return (
+            <div className="app-shell">
+                <h1>Financial Tracker</h1>
+                <AuthForm />
+            </div>
+        )
+    }
+
+    return (
+        <div className="app-shell">
+            <header className="app-header">
+                <h1>Financial Tracker</h1>
+                <div className="user-zone">
+                    <span>Utilisateur{username ? ` : ${username}` : ''}</span>
+                    <button onClick={logout} className="logout-btn">Se déconnecter</button>
+                </div>
+            </header>
+
+            <main>
+
+                <p>Bienvenue dans Financial Tracker Pro +++ </p>
+            </main>
+        </div>
+    )
 }
 
-export default App
