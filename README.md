@@ -3,11 +3,12 @@
 ## Description
 Ce projet est une application **React** construite avec **Vite** servant de client pour l’API [simplon-2024-banking-api](https://github.com/shiipou/simplon-2024-banking-api).
 
-L’application permet aux utilisateurs :
-- De s’inscrire et se connecter via l’API
-- De gérer leur session avec un système de **JWT**
-- D’accéder à un tableau de bord après authentification
-- D’installer l’application comme **PWA** pour un usage hors-ligne
+Il propose une interface pour :
+- L’authentification (connexion / inscription)
+- La gestion des **catégories**
+- La gestion des **moyens de paiement**
+- La gestion des **transactions**
+- Une **Progressive Web App (PWA)** installable
 
 ---
 
