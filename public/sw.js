@@ -1,37 +1,52 @@
-const CACHE_NAME = 'financial-tracker-cache-v1';
-const urlsToCache = [
-    '/',
-    '/index.html',
-    '/manifest.json'
+// public/sw.js
+const CACHE = 'ft-cache-v3';
+const STATIC = [
+    '/', '/index.html', '/manifest.json',
+    '/pwa-192x192.png', '/pwa-512x512.png'
 ];
 
-// Installation du service worker
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(urlsToCache);
-        })
+self.addEventListener('install', (e) => {
+    e.waitUntil(
+        caches.open(CACHE).then((c) => c.addAll(STATIC))
     );
+    self.skipWaiting(); // active plus vite
 });
 
-// Activation et nettoyage des anciens caches
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames
-                    .filter((name) => name !== CACHE_NAME)
-                    .map((name) => caches.delete(name))
-            );
-        })
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((names) =>
+            Promise.all(names.filter(n => n !== CACHE).map(n => caches.delete(n)))
+        )
     );
+    self.clients.claim();
 });
 
-// Interception des requêtes
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
-    );
+self.addEventListener('fetch', (e) => {
+    const req = e.request;
+    if (req.method !== 'GET') return;
+
+    // 1) Navigations (SPA fallback)
+    if (req.mode === 'navigate') {
+        e.respondWith(
+            caches.match('/index.html').then((r) => r || fetch(req))
+        );
+        return;
+    }
+
+    // 2) Assets (script/style/image/font) => cache-first
+    const dest = req.destination;
+    if (['script', 'style', 'image', 'font'].includes(dest)) {
+        e.respondWith(
+            caches.open(CACHE).then(async (cache) => {
+                const cached = await cache.match(req);
+                if (cached) return cached;
+                const res = await fetch(req);
+                if (res.ok) cache.put(req, res.clone());
+                return res;
+            })
+        );
+        return;
+    }
+
+    // 3) Le reste => réseau
 });
